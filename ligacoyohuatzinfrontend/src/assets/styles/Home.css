@@ -1,0 +1,21 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-ball {
+  animation: spin 3s linear infinite;
+  display: inline-block;
+}
+
+.grass-background {
+  background-image: url('../images/grass.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}

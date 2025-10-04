@@ -1,41 +1,45 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import AdminLayout from './pages/admin/AdminLayout';
+import MainLayout from './layouts/MainLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
-
-// La importación de './App.css' ha sido eliminada.
+import GestionCategorias from './pages/admin/GestionCategorias';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
-          {/* Ruta Pública */}
-          <Route path="/" element={<Home />} />
+          {/* CAMBIO: Todas las rutas ahora viven dentro de un <Route> padre
+              que renderiza MainLayout. Esto asegura que TODAS las páginas
+              tengan el mismo encabezado, fondo y barra de navegación. */}
+          <Route element={<MainLayout />}>
 
-          {/* --- Rutas Protegidas de Administrador --- */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="dashboard" element={<AdminDashboard />} />
+            {/* --- Rutas Públicas --- */}
+            <Route path="/" element={<Home />} />
+            <Route path="/categorias" element={<GestionCategorias />} />
 
-            {/* Futuras rutas del admin, como la de categorías, irán aquí */}
-            {/* <Route path="categorias" element={<GestionCategorias />} /> */}
-          </Route>
+            {/* --- Contenedor de Rutas Protegidas de Administrador --- */}
+            {/* Usamos un Outlet anidado que es protegido por ProtectedRoute.
+                Cualquier ruta dentro de este bloque requerirá login. */}
+            <Route element={<ProtectedRoute><Outlet /></ProtectedRoute>}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              {/* Aquí irán todas las futuras rutas que empiecen con /admin/...
+                  Por ejemplo: <Route path="/admin/equipos" element={<GestionEquipos />} /> */}
+            </Route>
 
-          {/* Ruta para manejar páginas no encontradas */}
-          <Route path="*" element={<div>404 - Página no encontrada</div>} />
+            {/* Ruta para manejar páginas no encontradas */}
+            <Route path="*" element={<div>404 - Página no encontrada</div>} />
+
+          </Route> {/* <-- ESTA ES LA ETIQUETA DE CIERRE QUE FALTABA */}
+
         </Routes>
       </AuthProvider>
     </Router>
   );
 }
+
+// CAMBIO: La función MainLayoutWrapper ya no es necesaria con esta nueva estructura, la puedes eliminar.
 
 export default App;

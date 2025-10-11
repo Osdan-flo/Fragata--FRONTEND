@@ -5,6 +5,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import GestionCategorias from './pages/admin/GestionCategorias';
+import TablaDePosiciones from './pages/TablaDePosiciones';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             {/* --- Rutas Públicas --- */}
             <Route path="/" element={<Home />} />
             <Route path="/categorias" element={<GestionCategorias />} />
+            <Route path="/posiciones" element={<TablaDePosiciones />} />
 
             {/* --- Contenedor de Rutas Protegidas de Administrador --- */}
             {/* Usamos un Outlet anidado que es protegido por ProtectedRoute.

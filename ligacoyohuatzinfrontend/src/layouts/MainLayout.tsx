@@ -21,7 +21,7 @@ const MainLayout = () => {
       <nav className="bg-green-800 border-t border-black border-opacity-20">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center py-3 w-full">
-            <Link to="#" className="bg-green-900 hover:bg-green-800 text-white px-6 py-2 rounded-md font-medium transition-colors text-center">Tabla de posiciones</Link>
+            <Link to="/posiciones" className="bg-green-900 hover:bg-green-800 text-white px-6 py-2 rounded-md font-medium transition-colors text-center">Tabla de posiciones</Link>
             <Link to="#" className="bg-green-900 hover:bg-green-800 text-white px-6 py-2 rounded-md font-medium transition-colors text-center">Partidos</Link>
             <Link to="/categorias" className="bg-green-900 hover:bg-green-800 text-white px-6 py-2 rounded-md font-medium transition-colors text-center">Categorías</Link>
             <Link to="#" className="bg-green-900 hover:bg-green-800 text-white px-6 py-2 rounded-md font-medium transition-colors text-center">Coordinación</Link>

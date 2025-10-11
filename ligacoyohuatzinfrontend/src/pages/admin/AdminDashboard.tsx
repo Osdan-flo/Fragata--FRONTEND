@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import CreateCategoryModal from '../../components/features/categorias/CreateCategoryModal';
+import CreateTournamentModal from '../../components/features/torneos/CreateTournamentModal';
 
 // Importaciones de tus íconos
 import iconoPartido from '../../assets/images/Icono-Agregar-Partido.png';
@@ -12,6 +13,7 @@ import iconoArbitro from '../../assets/images/icono-agregar-arbitro.png';
 import iconoCoordinador from '../../assets/images/icono-agregar-coordinador.png';
 import iconoTitulo from '../../assets/images/icono-agregar-titulo.png';
 import iconoEquipo from '../../assets/images/icono-agregar-equipo.png';
+import iconoTorneo from '../../assets/images/icono-agregar-torneo.png';
 
 // --- CAMBIO 1: El componente ahora recibe 'description' y tiene la nueva estructura para el hover ---
 const DashboardButton = ({ label, icon, description, action }: { label: string, icon: React.ReactNode, description: string, action?: () => void }) => (
@@ -36,20 +38,22 @@ const AdminDashboard = () => {
   const { email } = useAuth();
   const username = email ? email.split('@')[0] : 'Admin';
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
 
   const handleRefreshData = () => {
     console.log("Refrescando datos de la página...");
   };
 
-  // --- CAMBIO 2: Añadimos una 'description' a cada objeto del array ---
   const constructorButtons = [
     { label: 'Agregar Partido', icon: <img src={iconoPartido} alt="Agregar Partido" className="w-full h-full object-contain" />, description: "Programa un nuevo encuentro entre dos equipos." },
     { label: 'Agregar Evento', icon: <img src={iconoEvento} alt="Agregar Evento" className="w-full h-full object-contain" />, description: "Registra goles, tarjetas y otros incidentes de un partido ya jugado." },
     { label: 'Agregar Jugador', icon: <img src={iconoJugador} alt="Agregar Jugador" className="w-full h-full object-contain" />, description: "Da de alta a un nuevo jugador en la base de datos de la liga." },
     { label: 'Agregar Equipo', icon: <img src={iconoEquipo} alt="Agregar Equipo" className="w-full h-full object-contain" />, description: 'Da de alta a un nuevo equipo en una categoría.' },
+    { label: 'Agregar Torneo', icon: <img src={iconoTorneo} alt="Agregar Torneo" className="w-full h-full object-contain" />, description: "Crea un nuevo evento de torneo y su primera competición.", action: () => setIsTournamentModalOpen(true) },
     { label: 'Agregar Entrenador', icon: <img src={iconoEntrenador} alt="Agregar Entrenador" className="w-full h-full object-contain" />, description: "Registra a un nuevo entrenador." },
-    { label: 'Agregar Categoría', icon: <img src={iconoCategoria} alt="Agregar Categoría" className="w-full h-full object-contain" />, description: "Crea una nueva categoría, como 'Infantil' o 'Libre'.", action: () => setIsModalOpen(true) },
+    // --- CAMBIO 2: Corregimos el nombre de la función a 'setIsCategoryModalOpen' ---
+    { label: 'Agregar Categoría', icon: <img src={iconoCategoria} alt="Agregar Categoría" className="w-full h-full object-contain" />, description: "Crea una nueva categoría, como 'Infantil' o 'Libre'.", action: () => setIsCategoryModalOpen(true) },
     { label: 'Agregar Árbitro', icon: <img src={iconoArbitro} alt="Agregar Arbitro" className="w-full h-full object-contain" />, description: "Da de alta a un nuevo árbitro." },
     { label: 'Agregar Coordinador', icon: <img src={iconoCoordinador} alt="Agregar Coordinador" className="w-full h-full object-contain" />, description: "Registra a un nuevo miembro de la coordinación." },
     { label: 'Agregar Título', icon: <img src={iconoTitulo} alt="Agregar Titulo" className="w-full h-full object-contain" />, description: "Asigna un título de campeón a un equipo o jugador." },
@@ -67,7 +71,6 @@ const AdminDashboard = () => {
             key={button.label}
             label={button.label}
             icon={button.icon}
-            // --- CAMBIO 3: Pasamos la nueva 'description' como prop al componente ---
             description={button.description}
             action={button.action}
           />
@@ -75,9 +78,15 @@ const AdminDashboard = () => {
       </div>
 
       <CreateCategoryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCategoryCreated={handleRefreshData}
+              isOpen={isCategoryModalOpen}
+              onClose={() => setIsCategoryModalOpen(false)}
+              onCategoryCreated={handleRefreshData}
+      />
+
+      <CreateTournamentModal
+             isOpen={isTournamentModalOpen}
+             onClose={() => setIsTournamentModalOpen(false)}
+             onTournamentCreated={handleRefreshData}
       />
     </div>
   );

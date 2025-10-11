@@ -171,6 +171,7 @@ const GestionCategorias = () => {
             onConfirm={handleConfirmDelete}
             itemName={categoryToDelete.nombre}
             isLoading={isDeleting}
+            itemType="categoria"
           />
         )}
 

@@ -25,10 +25,16 @@ const response = await apiClient.patch(`/api/admin/categorias/${id}`, data);
 return response.data;
 };
 
+const getCategoriasByAnio = async (anio: number): Promise<CategoriaOut[]> => {
+const response = await apiClient.get(`/api/public/categorias?anio=${anio}`);
+return response.data;
+};
+
 export const categoryService = {
 getCategorias,
 createCategoria,
 updateCategoria,
 deleteCategoria,
 patchCategoria,
+getCategoriasByAnio,
 };

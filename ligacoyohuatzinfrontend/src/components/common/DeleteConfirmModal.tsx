@@ -4,8 +4,9 @@ interface DeleteConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  itemName: string; // El nombre que el usuario debe escribir para confirmar
+  itemName: string;
   isLoading: boolean;
+  itemType: 'categoria' | 'competicion'; // <-- 1. NUEVA PROP para el tipo de ítem
 }
 
 const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
@@ -13,11 +14,11 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   onClose,
   onConfirm,
   itemName,
-  isLoading
+  isLoading,
+  itemType
 }) => {
   const [inputValue, setInputValue] = useState('');
 
-  // Limpia el input cada vez que el modal se abre
   useEffect(() => {
     if (isOpen) {
       setInputValue('');
@@ -26,21 +27,46 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   const isConfirmed = inputValue === itemName;
 
+  // 2. Definimos los mensajes para cada tipo de ítem
+  const messages = {
+    categoria: {
+      title: "Confirmar Eliminación de Categoría",
+      warning: (
+        <>
+          Estás a punto de eliminar permanentemente la categoría <strong className="font-bold text-yellow-400">{itemName}</strong>.
+          <br/><br/>
+          Esta acción <strong className="text-red-500">solo tendrá éxito si la categoría no tiene competiciones asociadas</strong>. Si todavía existen datos vinculados, la eliminación fallará.
+        </>
+      ),
+      buttonText: "Sí, eliminar esta categoría"
+    },
+    competicion: {
+      title: "Confirmar Eliminación de Competición",
+      warning: (
+        <>
+          Estás a punto de eliminar la competición <strong className="font-bold text-yellow-400">{itemName}</strong>.
+          <br/><br/>
+          Si esta es la última competición de su torneo, <strong className="text-red-500">el torneo principal también será eliminado</strong>. Esta acción no se puede deshacer.
+        </>
+      ),
+      buttonText: "Sí, eliminar esta competición"
+    }
+  };
+
+  const currentMessages = messages[itemType]; // Seleccionamos el mensaje correcto
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gray-800 bg-opacity-95 text-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative animate-fade-in">
-        <h2 className="text-2xl font-bold text-center text-red-500 mb-4">ACCIÓN IRREVERSIBLE</h2>
-
-        <p className="text-gray-300 text-center mb-6">
-          Estás a punto de eliminar la categoría <strong className="font-bold text-yellow-400">{itemName}</strong>.
-          Esto borrará permanentemente todos los equipos, jugadores, inscripciones y partidos asociados a ella.
-        </p>
+        {/* --- 3. Usamos los mensajes dinámicos --- */}
+        <h2 className="text-2xl font-bold text-center text-red-500 mb-4">{currentMessages.title}</h2>
+        <p className="text-gray-300 text-center mb-6">{currentMessages.warning}</p>
 
         <div className="space-y-4">
           <label htmlFor="confirmInput" className="block text-sm font-medium text-gray-300">
-            Para confirmar, por favor escribe "<strong className="text-yellow-400">{itemName}</strong>" en el campo de abajo:
+            Para confirmar esta acción irreversible, por favor escribe "<strong className="text-yellow-400">{itemName}</strong>":
           </label>
           <input
             id="confirmInput"
@@ -62,7 +88,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             disabled={!isConfirmed || isLoading}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Eliminando...' : 'Eliminar Definitivamente'}
+            {isLoading ? 'Eliminando...' : currentMessages.buttonText}
           </button>
         </div>
       </div>

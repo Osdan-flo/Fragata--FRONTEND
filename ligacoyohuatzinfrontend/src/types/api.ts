@@ -8,6 +8,24 @@ export interface TokenDto {
 token: string;
 }
 
+export interface EquipoOut {
+id: number;
+nombre: string;
+logo?: string;
+descripcion?: string;
+categoriaBase?: { idCategoria: number; nombre: string; };
+  // --- CAMPO AÑADIDO ---
+// Inscripciones VIGENTES (torneo activo + categoría actual del equipo) — controla la palomita dorada.
+competicionesInscritas?: {
+idCompeticion: number;
+nombreTorneo: string;
+anioTorneo: number;
+}[];
+// Cualquier inscripción histórica (vigente o no) — es lo que realmente bloquea el borrado en el
+// backend, así que el botón eliminar/desinscribir debe basarse en esto, NO en competicionesInscritas.
+tieneInscripciones?: boolean;
+}
+
 // DTO de salida para Categoría
 export interface CategoriaOut {
 id: number;
@@ -69,4 +87,21 @@ fechaInicio: string; // <-- Y también aquí
 fechaFin: string;   // <-- Y también aquí
 };
 categoria: { idCategoria: number; nombre: string; };
+}
+
+export interface EquipoCompeticionIn {
+idEquipo: number;
+idCompeticion: number;
+}
+
+export interface UpdateEquipoIn {
+nombre?: string;
+descripcion?: string;
+categoriaBaseId?: number;
+}
+
+export interface CreateEquipoIn {
+nombre: string;
+descripcion?: string;
+categoriaBaseId: number;
 }

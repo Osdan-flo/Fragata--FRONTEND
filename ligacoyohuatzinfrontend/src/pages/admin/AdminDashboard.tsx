@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import CreateCategoryModal from '../../components/features/categorias/CreateCategoryModal';
 import CreateTournamentModal from '../../components/features/torneos/CreateTournamentModal';
+import CreateTeamModal from '../../components/features/equipos/CreateTeamModal';
 
 // Importaciones de tus íconos
 import iconoPartido from '../../assets/images/Icono-Agregar-Partido.png';
@@ -40,6 +41,7 @@ const AdminDashboard = () => {
 
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isTournamentModalOpen, setIsTournamentModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
 
   const handleRefreshData = () => {
     console.log("Refrescando datos de la página...");
@@ -49,10 +51,9 @@ const AdminDashboard = () => {
     { label: 'Agregar Partido', icon: <img src={iconoPartido} alt="Agregar Partido" className="w-full h-full object-contain" />, description: "Programa un nuevo encuentro entre dos equipos." },
     { label: 'Agregar Evento', icon: <img src={iconoEvento} alt="Agregar Evento" className="w-full h-full object-contain" />, description: "Registra goles, tarjetas y otros incidentes de un partido ya jugado." },
     { label: 'Agregar Jugador', icon: <img src={iconoJugador} alt="Agregar Jugador" className="w-full h-full object-contain" />, description: "Da de alta a un nuevo jugador en la base de datos de la liga." },
-    { label: 'Agregar Equipo', icon: <img src={iconoEquipo} alt="Agregar Equipo" className="w-full h-full object-contain" />, description: 'Da de alta a un nuevo equipo en una categoría.' },
+    { label: 'Agregar Equipo', icon: <img src={iconoEquipo} alt="Agregar Equipo" className="w-full h-full object-contain" />, description: 'Da de alta a un nuevo equipo y, opcionalmente, inscríbelo a una competición.', action: () => setIsTeamModalOpen(true) },
     { label: 'Agregar Torneo', icon: <img src={iconoTorneo} alt="Agregar Torneo" className="w-full h-full object-contain" />, description: "Crea un nuevo evento de torneo y su primera competición.", action: () => setIsTournamentModalOpen(true) },
     { label: 'Agregar Entrenador', icon: <img src={iconoEntrenador} alt="Agregar Entrenador" className="w-full h-full object-contain" />, description: "Registra a un nuevo entrenador." },
-    // --- CAMBIO 2: Corregimos el nombre de la función a 'setIsCategoryModalOpen' ---
     { label: 'Agregar Categoría', icon: <img src={iconoCategoria} alt="Agregar Categoría" className="w-full h-full object-contain" />, description: "Crea una nueva categoría, como 'Infantil' o 'Libre'.", action: () => setIsCategoryModalOpen(true) },
     { label: 'Agregar Árbitro', icon: <img src={iconoArbitro} alt="Agregar Arbitro" className="w-full h-full object-contain" />, description: "Da de alta a un nuevo árbitro." },
     { label: 'Agregar Coordinador', icon: <img src={iconoCoordinador} alt="Agregar Coordinador" className="w-full h-full object-contain" />, description: "Registra a un nuevo miembro de la coordinación." },
@@ -87,6 +88,12 @@ const AdminDashboard = () => {
              isOpen={isTournamentModalOpen}
              onClose={() => setIsTournamentModalOpen(false)}
              onTournamentCreated={handleRefreshData}
+      />
+
+      <CreateTeamModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
+        onTeamCreated={handleRefreshData}
       />
     </div>
   );

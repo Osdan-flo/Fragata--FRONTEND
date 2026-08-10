@@ -4,6 +4,7 @@ import { categoryService } from '../../services/categoryService';
 import { CategoriaOut } from '../../types/api';
 import DeleteConfirmModal from '../../components/common/DeleteConfirmModal';
 import EditCategoryModal from '../../components/features/categorias/EditCategoryModal'; // <-- Importamos el modal de edición
+import { Link } from 'react-router-dom';
 
 // Íconos SVG para las acciones (sin cambios)
 const EditIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
@@ -75,40 +76,38 @@ const GestionCategorias = () => {
   };
 
   return (
-      <div className="container mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-white uppercase">Bienvenido a las CATEGORÍAS</h2>
-          <p className="text-gray-300 mt-4 max-w-3xl mx-auto">
-            En esta sección podrás encontrar información sobre tu categoría favorita, podrás consultar los equipos que forman parte de cada categoría, así como los jugadores que juegan en cada uno junto con su información de registro, así como la información del entrenador que los dirige. ¡Disfrútalo!
-          </p>
-        </div>
+    <div className="container mx-auto">
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-bold text-white uppercase">Bienvenido a las CATEGORÍAS</h2>
+        <p className="text-gray-300 mt-4 max-w-3xl mx-auto">
+          En esta sección podrás encontrar información sobre tu categoría favorita...
+        </p>
+      </div>
 
-        {isLoading && <p className="text-center text-white">Cargando categorías...</p>}
-        {error && <p className="text-red-500 text-center">{error}</p>}
+      {isLoading && <p className="text-center text-white">Cargando categorías...</p>}
+      {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <div className="space-y-4 max-w-6xl mx-auto">
-          {categorias.map(cat => {
-            // --- Lógica para el Indicador Visual ---
-            const isExpanded = expandedId === cat.id;
-            const isLibreFamily = cat.nombre.toLowerCase().includes('libre');
-            const needsAscenso = cat.nombre.toLowerCase().includes('d.a') && !cat.asciendeA;
-            const needsDescenso = isLibreFamily && !cat.nombre.toLowerCase().includes('d.a') && !cat.desciendeDesde;
-            const needsAttention = needsAscenso || needsDescenso;
-            const tooltipText = needsAscenso ? 'Falta definir la categoría de ascenso' : 'Falta definir la categoría de descenso';
+      <div className="space-y-4 max-w-6xl mx-auto">
+        {categorias.map(cat => {
+          const isExpanded = expandedId === cat.id;
+          const isLibreFamily = cat.nombre.toLowerCase().includes('libre');
+          const needsAscenso = cat.nombre.toLowerCase().includes('d.a') && !cat.asciendeA;
+          const needsDescenso = isLibreFamily && !cat.nombre.toLowerCase().includes('d.a') && !cat.desciendeDesde;
+          const needsAttention = needsAscenso || needsDescenso;
+          const tooltipText = needsAscenso ? 'Falta definir la categoría de ascenso' : 'Falta definir la categoría de descenso';
 
-            return (
-              <div key={cat.id}>
-                {/* Botón principal (Tu diseño original) */}
-                <div
-                  className={`bg-black bg-opacity-30 shadow-lg px-6 py-6 flex items-center justify-between transition-all duration-300 ${
-                    expandedId === cat.id && cat.descripcion
-                      ? 'rounded-t-full'
-                      : 'rounded-full'
-                  }`}
-                >
+          return (
+            <Link
+              key={cat.id}
+              to={`/categorias/${cat.id}/equipos`}
+              state={{ categoryName: cat.nombre }}
+              className="block"
+            >
+              <div className="rounded-[2.5rem] overflow-hidden shadow-lg transition-all duration-300">
+                <div className="bg-black bg-opacity-30 px-6 py-6 flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <button
-                      onClick={() => handleToggleExpand(cat.id)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleExpand(cat.id); }}
                       className="text-white hover:text-green-300 disabled:opacity-30"
                       disabled={!cat.descripcion}
                     >
@@ -117,8 +116,6 @@ const GestionCategorias = () => {
                     <span className="text-white font-semibold text-xl tracking-wider">
                       {cat.nombre.toUpperCase()}
                     </span>
-
-                    {/* --- AÑADIDO: Renderizado del Indicador Visual --- */}
                     {isAuthenticated && needsAttention && (
                       <span title={tooltipText}>
                         <WarningIcon />
@@ -127,16 +124,15 @@ const GestionCategorias = () => {
                   </div>
                   {isAuthenticated && (
                     <div className="flex items-center space-x-4">
-                      {/* --- AÑADIDO: onClick para el botón de editar --- */}
                       <button
-                        onClick={() => handleEditClick(cat)}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleEditClick(cat); }}
                         className="text-white hover:text-blue-400"
                         title="Editar"
                       >
                         <EditIcon />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(cat)}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(cat); }}
                         className="text-white hover:text-red-500"
                         title="Eliminar"
                       >
@@ -146,9 +142,8 @@ const GestionCategorias = () => {
                   )}
                 </div>
 
-                {/* Rectángulo con la descripción (Tu animación original) */}
                 <div
-                  className={`bg-black bg-opacity-30 shadow-lg overflow-hidden transition-all duration-300 ${
+                  className={`bg-black bg-opacity-30 overflow-hidden transition-all duration-300 ${
                     isExpanded && cat.descripcion
                       ? 'max-h-96 opacity-100'
                       : 'max-h-0 opacity-0'
@@ -159,32 +154,31 @@ const GestionCategorias = () => {
                   </div>
                 </div>
               </div>
-            )
-          })}
-        </div>
-
-        {/* Modal de confirmación para eliminar */}
-        {categoryToDelete && (
-          <DeleteConfirmModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => setIsDeleteModalOpen(false)}
-            onConfirm={handleConfirmDelete}
-            itemName={categoryToDelete.nombre}
-            isLoading={isDeleting}
-            itemType="categoria"
-          />
-        )}
-
-        {/* --- AÑADIDO: Renderizado del modal de edición --- */}
-        {isAuthenticated && (
-          <EditCategoryModal
-            isOpen={isEditModalOpen}
-            onClose={() => setIsEditModalOpen(false)}
-            onCategoryUpdated={loadCategorias}
-            categoryToEdit={categoryToEdit}
-          />
-        )}
+            </Link>
+          )
+        })}
       </div>
-    );
+
+      {categoryToDelete && (
+        <DeleteConfirmModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          itemName={categoryToDelete.nombre}
+          isLoading={isDeleting}
+          itemType="categoria"
+        />
+      )}
+
+      {isAuthenticated && (
+        <EditCategoryModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onCategoryUpdated={loadCategorias}
+          categoryToEdit={categoryToEdit}
+        />
+      )}
+    </div>
+  );
 };
 export default GestionCategorias;

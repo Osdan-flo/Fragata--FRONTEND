@@ -6,6 +6,7 @@ import MainLayout from './layouts/MainLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import GestionCategorias from './pages/admin/GestionCategorias';
 import TablaDePosiciones from './pages/TablaDePosiciones';
+import EquiposPorCategoria from './pages/EquiposPorCategoria';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/categorias" element={<GestionCategorias />} />
             <Route path="/posiciones" element={<TablaDePosiciones />} />
+            <Route path="/categorias/:categoryId/equipos" element={<EquiposPorCategoria />} />
 
             {/* --- Contenedor de Rutas Protegidas de Administrador --- */}
             {/* Usamos un Outlet anidado que es protegido por ProtectedRoute.

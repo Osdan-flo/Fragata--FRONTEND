@@ -1,5 +1,5 @@
 import apiClient from '../lib/axios';
-import { TorneoOut, TorneoIn, CompeticionOut, CompeticionIn, CategoriaOut } from '../types/api';
+import { TorneoOut, TorneoIn, TorneoCompeticionIn, CompeticionOut, CompeticionIn, CategoriaOut } from '../types/api';
 
 // --- Métodos de Admin ---
 const createTournamentAndCompetition = async (data: TorneoCompeticionIn): Promise<CompeticionOut> => {
@@ -29,6 +29,11 @@ const response = await apiClient.get(`/api/public/competiciones?anio=${anio}&cat
 return response.data;
 };
 
+const getCompeticionesByCategoria = async (categoriaId: number): Promise<CompeticionOut[]> => {
+const response = await apiClient.get(`/api/public/competiciones/by-category?categoriaId=${categoriaId}`);
+return response.data;
+};
+
 const patchTorneo = async (id: number, data: Partial<TorneoIn>): Promise<TorneoOut> => {
 const response = await apiClient.patch(`/api/admin/torneos/${id}`, data);
 return response.data;
@@ -52,4 +57,5 @@ getCompeticionesByAnioAndCategoria,
 patchTorneo,
 deleteCompeticion,
 patchCompeticion,
+getCompeticionesByCategoria,
 };

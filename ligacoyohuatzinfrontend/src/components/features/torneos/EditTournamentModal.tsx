@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { tournamentService } from '../../../services/tournamentService';
 import { categoryService } from '../../../services/categoryService';
+import { teamService } from '../../../services/teamService'; // Importación esencial
 import { TorneoIn, CategoriaOut, CompeticionOut } from '../../../types/api';
 
 interface EditTournamentModalProps {
@@ -11,7 +12,6 @@ interface EditTournamentModalProps {
 }
 
 const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClose, onTournamentUpdated, competicionToEdit }) => {
-  // Estados para los campos del formulario
   const [nombre, setNombre] = useState('');
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [idCategoria, setIdCategoria] = useState('');
@@ -22,17 +22,19 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Carga los datos de la competición en el formulario cuando se abre el modal
+  // Estado para controlar si hay equipos inscritos
+  const [hasEnrolledTeams, setHasEnrolledTeams] = useState(false);
+
   useEffect(() => {
     if (isOpen && competicionToEdit) {
-      // Cargar datos del torneo
       setNombre(competicionToEdit.torneo.nombre);
       setAnio(competicionToEdit.torneo.anio);
-      // Cargar dato de la categoría
       setIdCategoria(competicionToEdit.categoria.idCategoria.toString());
+      setFechaInicio(competicionToEdit.torneo.fechaInicio);
+      setFechaFin(competicionToEdit.torneo.fechaFin);
       setError('');
 
-      // Cargar la lista de categorías para el menú desplegable
+      // Cargar categorías existentes
       const fetchCategories = async () => {
         try {
           const allCategories = await categoryService.getCategorias();
@@ -43,8 +45,12 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
       };
       fetchCategories();
 
-      setFechaInicio(competicionToEdit.torneo.fechaInicio);
-      setFechaFin(competicionToEdit.torneo.fechaFin);
+      // VERIFICACIÓN ESENCIAL: ¿Tiene equipos inscritos?
+      teamService.getEquiposByCompeticion(competicionToEdit.idCompeticion)
+        .then(equipos => {
+          setHasEnrolledTeams(equipos.length > 0);
+        })
+        .catch(() => setHasEnrolledTeams(false));
     }
   }, [isOpen, competicionToEdit]);
 
@@ -58,7 +64,6 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
     try {
       const apiCalls = [];
 
-      // Comprueba si los datos del Torneo han cambiado
       const torneoChanged =
         nombre !== competicionToEdit.torneo.nombre ||
         anio !== competicionToEdit.torneo.anio ||
@@ -75,7 +80,6 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
         apiCalls.push(tournamentService.patchTorneo(competicionToEdit.torneo.idTorneo, torneoPatchData));
       }
 
-      // Comprueba si la Categoría de la Competición ha cambiado
       if (idCategoria && parseInt(idCategoria) !== competicionToEdit.categoria.idCategoria) {
         apiCalls.push(tournamentService.patchCompeticion(competicionToEdit.idCompeticion, { idCategoria: parseInt(idCategoria) }));
       }
@@ -86,11 +90,9 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
         return;
       }
 
-      // Ejecuta todas las llamadas a la API necesarias
       await Promise.all(apiCalls);
-
-      onTournamentUpdated(); // Refresca la lista en la página principal
-      onClose(); // Cierra el modal
+      onTournamentUpdated();
+      onClose();
 
     } catch (err: any) {
       setError(err.response?.data?.error || 'Error al actualizar');
@@ -117,26 +119,43 @@ const EditTournamentModal: React.FC<EditTournamentModalProps> = ({ isOpen, onClo
               className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300">Categoría de la Competición</label>
-            <select value={idCategoria} onChange={(e) => setIdCategoria(e.target.value)}
-              className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <label className="block text-sm font-medium text-gray-300">
+                Categoría {hasEnrolledTeams && <span className="text-yellow-500 text-xs">(Bloqueada por equipos inscritos)</span>}
+            </label>
+            <select
+              value={idCategoria}
+              onChange={(e) => setIdCategoria(e.target.value)}
+              disabled={hasEnrolledTeams} // BLOQUEO
+              className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
               <option value="" disabled>Selecciona una categoría</option>
               {availableCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300">Fecha de Inicio</label>
-              <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)}
-                className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg" />
-                {/* Aquí podrías deshabilitarlo si el backend te informa que ya hay partidos */}
+              <label className="block text-sm font-medium text-gray-300">
+                  Fecha de Inicio {hasEnrolledTeams && <span className="text-yellow-500 text-xs">(🔒)</span>}
+              </label>
+              <input
+                type="date"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                disabled={hasEnrolledTeams} // BLOQUEO
+                className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-300">Fecha de Fin</label>
               <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)}
-                className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg" />
+                className="mt-1 w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
           </div>
+
+          {hasEnrolledTeams && (
+            <p className="text-[10px] text-yellow-500 italic text-center">
+              * Para cambiar la categoría o la fecha de inicio, primero debes desinscribir a los equipos de esta competición.
+            </p>
+          )}
+
           {error && <p className="text-red-500 text-sm mt-4 text-center">{error}</p>}
           <div className="mt-8 flex justify-end">
             <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg mr-4">Cancelar</button>
